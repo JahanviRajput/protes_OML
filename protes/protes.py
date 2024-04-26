@@ -19,17 +19,23 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
     rng = jax.random.PRNGKey(seed)
 
     if P is None:
+        '''key is a pseudo-random number generator'''
         rng, key = jax.random.split(rng)
+        ''' d is dim of N1, r is rank key is for generating numbers from distribution....
+        P is the initial TT-tensor with g1,g2:d-1,gd 3 components'''
         P = _generate_initial(d, n, r, key)
     elif len(P[1].shape) != 4:
+        ''' Because we are generating all g2:d-1 together so we ar passing 4 things to it--- (d-2, r, n, r)'''
         raise ValueError('Initial P tensor should have special format')
 
     if with_info_p:
         info['P'] = P
 
     optim = optax.adam(lr)
+    #creating object for optimizer adam
     state = optim.init(P)
 
+    # changing function of type jit - just in time
     interface_matrices = jax.jit(_interface_matrices)
     sample = jax.jit(jax.vmap(_sample, (None, None, None, None, 0)))
     likelihood = jax.jit(jax.vmap(_likelihood, (None, None, None, None, 0)))
@@ -57,9 +63,13 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
             I = sample_ext(P, k, seed)
             seed += k
         else:
+            # Pl = g1, Pm = g2:d-1, Pr = gd
             Pl, Pm, Pr = P
+            # returning normalizing g2:d after some operation
             Zm = interface_matrices(Pm, Pr)
+            # giving two new PRNG as default value is 2
             rng, key = jax.random.split(rng)
+            
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
 
         y = f(I)
@@ -98,7 +108,6 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
 def _generate_initial(d, n, r, key):
     """Build initial random TT-tensor for probability."""
     keyl, keym, keyr = jax.random.split(key, 3)
-
     Yl = jax.random.uniform(keyl, (1, n, r))
     Ym = jax.random.uniform(keym, (d-2, r, n, r))
     Yr = jax.random.uniform(keyr, (r, n, 1))
@@ -112,7 +121,7 @@ def _interface_matrices(Ym, Yr):
         Z = jnp.sum(Y_cur, axis=1) @ Z
         Z /= jnp.linalg.norm(Z)
         return Z, Z
-
+    # normalizing all the g2:d
     Z, Zr = body(jnp.ones(1), Yr)
     _, Zm = jax.lax.scan(body, Z, Ym, reverse=True)
 
