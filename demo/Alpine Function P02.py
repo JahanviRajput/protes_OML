@@ -1,3 +1,14 @@
+import jax
+jax.config.update('jax_enable_x64', True)
+jax.config.update('jax_platform_name', 'cpu')
+jax.default_device(jax.devices('cpu')[0])
+
+
+import numpy as np
+from time import perf_counter as tpc
+
+
+from protes import protes
 import numpy as np
 
 def func_build_alp(d, n):
