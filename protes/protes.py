@@ -69,7 +69,7 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
             Zm = interface_matrices(Pm, Pr)
             # giving two new PRNG as default value is 2
             rng, key = jax.random.split(rng)
-            
+            # I is indices for which we will choose x ---- dim is (d,1)
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
 
         y = f(I)
@@ -79,14 +79,16 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
             continue
 
         y = jnp.array(y)
+        # initially m is 0 we are counting number of iteration
         info['m'] += y.shape[0]
 
         is_new = _process(P, I, y, info, with_info_i_opt_list, with_info_full)
-
+        # not more than m iterations
         if info['m_max'] and info['m'] >= info['m_max']:
             break
-
+        # sorting y for finding top k values
         ind = jnp.argsort(y, kind='stable')
+        # selecting topk values
         ind = (ind[::-1] if is_max else ind)[:k_top]
 
         for _ in range(k_gd):
@@ -200,7 +202,23 @@ def _sample(Yl, Ym, Yr, Zm, key):
     """Generate sample according to given probability TT-tensor."""
     def body(Q, data):
         key_cur, Y_cur, Z_cur = data
+        ''' The line G = jnp.einsum('r,riq,q->i', Q, Y_cur, Z_cur) uses Einstein summation notation in JAX to perform a contraction operation on the arrays Q, Y_cur, and Z_cur.
 
+           Here's how it works:
+           
+           Q, Y_cur, and Z_cur are the input arrays.
+           'r,riq,q->i' specifies the Einstein summation convention for the operation. Each character represents a dimension, and the arrow (->) indicates the output dimension.
+           r corresponds to a dimension in Q.
+           riq corresponds to dimensions in Y_cur.
+           q corresponds to a dimension in Z_cur.
+           i corresponds to the output dimension.
+           The letters represent indices that are contracted (summed) over. The output array G will have the shape determined by the remaining non-contracted dimensions.
+           In simpler terms, the operation can be described as follows:
+           
+           For each element of the output array G, an element-wise multiplication is performed between the corresponding elements of Q, Y_cur, and Z_cur.
+           Then, the results are summed over the r and q dimensions and multiplied by the riq dimension, resulting in a single value for each element of G.
+           The resulting array G will have a shape determined by the dimensions not specified in the output, which is just the i dimension in this case.'''
+               
         G = jnp.einsum('r,riq,q->i', Q, Y_cur, Z_cur)
         G = jnp.abs(G)
         G /= jnp.sum(G)
