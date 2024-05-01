@@ -12,7 +12,7 @@ from submodlib import FacilityLocationFunction
 from protes import protes
 
 
-def func_build(d, n):
+def func_build_Rastrigin(d, n):
     """Rastrigin multivariable analytic functions"""
 
     # Parameters
@@ -25,13 +25,11 @@ def func_build(d, n):
         https://www.sfu.ca/~ssurjano/rastr.html
         Compute the value of the function f(x) = 10d + sum[i=1 to d] (x_i^2 - 10 * cos(2*pi*x_i)).
         
-        Args:
-        x (array-like): Array of values representing the input variables x_i.
-        
         Returns:
         float: The value of the function f(x).
         """
-        sum_term = np.sum([x[i]**2 - 10 * np.cos(2 * np.pi * x[i]) for i in range(d)])
+        X = I / (d - 1)
+        sum_term = np.sum([X[i]**2 - 10 * np.cos(2 * np.pi * X[i]) for i in range(d)], axis = 1)
         return 10 * d + sum_term
 
     return func
