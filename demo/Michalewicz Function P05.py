@@ -13,7 +13,7 @@ from protes import protes
 import numpy as np
 
 def func_build_michalewicz(d, m):
-    """Custom function f(X) https://www.sfu.ca/~ssurjano/michal.html """
+    """Custom function f(X) Michalewicz Function https://www.sfu.ca/~ssurjano/michal.html"""
 
     def func(I):
         """Target function: y=f(I); [samples,d] -> [samples]."""
@@ -21,13 +21,14 @@ def func_build_michalewicz(d, m):
         b = np.pi        # Upper bound for xi
 
         X = I / (d - 1) * (b - a) + a
-
+        z= np.sqrt(np.tile(np.arange(1, np.shape(X)[0] + 1).reshape(-1, 1), (1, np.shape(X)[1])))
         # Compute the function value for each sample
-        result = -np.sum(np.sin(X) * np.sin(np.tile(np.arange(1, d + 1), (X.shape[0], d)) * X**2 / np.pi)**(2 * m), axis=1)
+        result = -np.sum(np.sin(X) * ((np.sin(z* X**2 / np.pi))**(2 * m)), axis=1)
 
         return result
 
     return func
+    
 def demo():
     """A simple demonstration for discretized multivariate analytic function.
 
