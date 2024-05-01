@@ -12,7 +12,7 @@ from protes import protes
 import numpy as np
 
 def func_build_griewank(d, n):
-    """Custom function f(X)."""
+    """Griewank Function f(X)."""
 
     def func(I):
         """Target function: y=f(I); [samples,d] -> [samples]."""
@@ -20,10 +20,9 @@ def func_build_griewank(d, n):
         b = 10.0           # Upper bound for xi
 
         X = I / (n - 1) * (b - a) + a
-        print(np.shape(X))
-
+        z= np.sqrt(np.tile(np.arange(1, np.shape(X)[0] + 1).reshape(-1, 1), (1, np.shape(X)[1])))
         # Compute the function value for each sample
-        y2=np.prod(np.cos(X)/np.arange(1,1+len(X)))
+        y2=np.prod(np.cos(X)/z)
         result = (np.sum(X**2, axis=1))/4000 - y2 + 1
 
 
