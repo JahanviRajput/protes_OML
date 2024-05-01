@@ -20,14 +20,8 @@ def func_build_alp(d, n):
         b = 10.0            # Upper bound for xi
 
         X = I / (n - 1) * (b - a) + a
-
-        # Adjust the shape of the array for broadcasting
-        arange_reshaped = np.sqrt(np.arange(1, n + 1)).reshape((1, -1))
-
-        # Compute the function value for each sample
-        result = 14000 * np.sum(X**2, axis=1) - np.prod(np.cos(X / arange_reshaped), axis=1) + 1
-
-        return result
+        r = np.sum(np.abs(X * np.sin(X) + 0.1 * X),axis = 1)
+        return r
 
     return func
 
