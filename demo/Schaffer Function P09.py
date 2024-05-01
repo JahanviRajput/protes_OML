@@ -12,22 +12,21 @@ from submodlib import FacilityLocationFunction
 from protes import protes
 
 
-def func_build(d, n):
+def func_build_Schwefel(d, n):
     """https://www.sfu.ca/~ssurjano/schaffer2.html
     Schwefel multivariable analytic functions"""
-    def f(x):
+    def func(I):
         """
         Compute the value of the provided function for input vector x.
-        
-        Args:
-        x (array-like): Array of values representing the input variables.
         
         Returns:
         float: The value of the function f(x).
         """
-        sin_term = np.sin(x[0]**2 - x[1]**2)**2
-        denominator = (1 + 0.001 * (x[0]**2 + x[1]**2))**2
+        X = I / (d - 1)
+        sin_term = np.sin(np.sum(X**2, axis = 1))**2
+        denominator = (1 + 0.001 * np.sum(X**2, axis = 1))**2
         return 0.5 + (sin_term - 0.5) / denominator
+    return func
 
     def func(I):
         """
