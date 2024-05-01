@@ -12,7 +12,7 @@ from protes import protes
 import numpy as np
 
 def func_build_griewank(d, n):
-    """Griewank Function f(X)."""
+    """Griewank Function f(X) https://www.sfu.ca/~ssurjano/griewank.html """
 
     def func(I):
         """Target function: y=f(I); [samples,d] -> [samples]."""
