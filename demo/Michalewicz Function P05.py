@@ -13,7 +13,7 @@ from protes import protes
 import numpy as np
 
 def func_build_michalewicz(d, m):
-    """Custom function f(X)."""
+    """Custom function f(X) https://www.sfu.ca/~ssurjano/michal.html """
 
     def func(I):
         """Target function: y=f(I); [samples,d] -> [samples]."""
