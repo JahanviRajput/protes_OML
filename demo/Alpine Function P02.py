@@ -12,7 +12,7 @@ from protes import protes
 import numpy as np
 
 def func_build_alp(d, n):
-    """Alpine Function f(X)."""
+    """Alpine Function f(X) https://al-roomi.org/benchmarks/unconstrained/n-dimensions/162-alpine-function-no-1 """
 
     def func(I):
         """Target function: y=f(I); [samples,d] -> [samples]."""
