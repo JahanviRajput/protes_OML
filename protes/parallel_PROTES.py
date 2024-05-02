@@ -1,4 +1,13 @@
 from protes import protes
+import numpy as np
+import random
+from time import perf_counter as tpc
+import jax
+import jax.numpy as jnp
+import optax
+jax.config.update('jax_enable_x64', True)
+jax.config.update('jax_platform_name', 'cpu')
+jax.default_device(jax.devices('cpu')[0])
 
 
 def demofed():
