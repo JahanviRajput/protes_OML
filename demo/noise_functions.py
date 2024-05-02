@@ -44,7 +44,12 @@ def func_build_Schwefel_noise(d, n):
         X = I / (d - 1)
         sin_term = np.sin(np.sum(X**2, axis = 1))**2
         denominator = (1 + 0.001 * np.sum(X**2, axis = 1))**2
-        return 0.5 + (sin_term - 0.5) / denominator
+        noise = bernoulli.rvs(size=1,p=0.6)
+        k = np.random.normal(0,1,1)
+        if noise ==1:
+          return 0.5 + (sin_term - 0.5) / denominator+k
+        else:
+          return 0.5 + (sin_term - 0.5) / denominator
     return func
 
 def func_build_Rastrigin_noise(d, n):
@@ -68,7 +73,13 @@ def func_build_Rastrigin_noise(d, n):
         """
         X = I / (d - 1)
         sum_term = np.sum([X[i]**2 - 10 * np.cos(2 * np.pi * X[i]) for i in range(d)], axis = 1)
-        return 10 * d + sum_term
+        noise = bernoulli.rvs(size=1,p=0.6)
+        k = np.random.normal(0,1,1)
+        if noise ==1:
+          return 10 * d + sum_term+k
+        else:
+          return 10 * d + sum_term
+        
 
     return func
 
@@ -84,7 +95,12 @@ def func_build_michalewicz_noise(d, m):
         z= np.sqrt(np.tile(np.arange(1, np.shape(X)[0] + 1).reshape(-1, 1), (1, np.shape(X)[1])))
         # Compute the function value for each sample
         result = -np.sum(np.sin(X) * ((np.sin(z* X**2 / np.pi))**(2 * m)), axis=1)
-        return result
+        noise = bernoulli.rvs(size=1,p=0.6)
+        k = np.random.normal(0,1,1)
+        if noise ==1:
+            return result+k
+        else:
+           return result
 
     return func
 
@@ -103,10 +119,12 @@ def func_build_griewank_noise(d, n):
         # Compute the function value for each sample
         y2=np.prod(np.cos(X)/z)
         result = (np.sum(X**2, axis=1))/4000 - y2 + 1
-
-
-        return result
-
+        noise = bernoulli.rvs(size=1,p=0.6)
+        k = np.random.normal(0,1,1)
+        if noise ==1:
+            return result+k
+        else:
+           return result
     return func
 
 def func_build_alp_noise(d, n):
@@ -119,6 +137,10 @@ def func_build_alp_noise(d, n):
 
         X = I / (n - 1) * (b - a) + a
         r = np.sum(np.abs(X * np.sin(X) + 0.1 * X),axis = 1)
-        return r
-
+        noise = bernoulli.rvs(size=1,p=0.6)
+        k = np.random.normal(0,1,1)
+        if noise ==1:
+            return r+k
+        else:
+           return r
     return func
