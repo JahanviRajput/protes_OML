@@ -8,6 +8,8 @@ import optax
 jax.config.update('jax_enable_x64', True)
 jax.config.update('jax_platform_name', 'cpu')
 jax.default_device(jax.devices('cpu')[0])
+#all functions
+from .demo import *
 
 
 def demofed():
