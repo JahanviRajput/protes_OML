@@ -29,7 +29,7 @@ def func_build_Rastrigin(d, n):
         float: The value of the function f(x).
         """
         X = I / (d - 1)
-        sum_term = np.sum([X[i]**2 - 10 * np.cos(2 * np.pi * X[i]) for i in range(d)], axis = 1)
+        sum_term = np.sum(X**2 - 10 * np.cos(2 * np.pi * X), axis=1)
         return 10 * d + sum_term
 
     return func
