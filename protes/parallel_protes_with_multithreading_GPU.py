@@ -11,7 +11,15 @@ jax.config.update('jax_enable_x64', True)
 jax.config.update('jax_platform_name', 'cpu')
 jax.default_device(jax.devices('cpu')[0])
 #all functions
-from .demo import *
+import sys
+sys.path.append('../demo/')  
+from Ackley_function_P01 import *
+from Alpine_function_P02 import *
+from Griewank_function_P04 import *
+from Michalewicz_function_P05 import *
+from Rastrigin_function_P08 import *
+from Schwefel_function_P10 import *
+
 
 
 # Assuming the function definitions are provided
@@ -68,11 +76,14 @@ def dataframe_output(y_value, t_value):
     df.iloc[1, 1:] = t_value
     
     # Print the DataFrame after assigning values
-    return
+    return df
 
 # Execute the demofed function
 
 y_value, t_value = demofed()
-print("Output \n y_value",y_value,"\n t_value" ,t_value)
+##test
+# y_value = [0,0,0,0,0,0]
+# t_value = [0,0,0,0,0,0]
+# print("Output \n y_value",y_value,"\n t_value" ,t_value)
 df = dataframe_output(y_value, t_value)
 print(df)

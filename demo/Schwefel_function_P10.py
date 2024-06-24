@@ -6,10 +6,12 @@ jax.default_device(jax.devices('cpu')[0])
 
 import numpy as np
 from time import perf_counter as tpc
+import sys
+sys.path.append('../')  
 from protes import protes
 
 
-def func_build(d, n):
+def func_build_Schwefel(d, n):
     """Schwefel multivariable analytic functions"""
 
     def f(x):

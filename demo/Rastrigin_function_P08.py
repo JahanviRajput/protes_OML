@@ -6,7 +6,9 @@ jax.default_device(jax.devices('cpu')[0])
 
 import numpy as np
 from time import perf_counter as tpc
-from submodlib import FacilityLocationFunction
+import sys
+sys.path.append('../')  
+# from submodlib import FacilityLocationFunction
 
 
 from protes import protes

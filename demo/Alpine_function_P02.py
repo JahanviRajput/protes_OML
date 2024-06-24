@@ -7,7 +7,8 @@ jax.default_device(jax.devices('cpu')[0])
 import numpy as np
 from time import perf_counter as tpc
 
-
+import sys
+sys.path.append('../')  
 from protes import protes
 import numpy as np
 

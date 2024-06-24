@@ -6,13 +6,13 @@ jax.default_device(jax.devices('cpu')[0])
 
 import numpy as np
 from time import perf_counter as tpc
-from submodlib import FacilityLocationFunction
-
-
+# from submodlib import FacilityLocationFunction
+import sys
+sys.path.append('../')  
 from protes import protes
 
 
-def func_build(d, n):
+def func_buildfed(d, n):
     """Ackley function. See https://www.sfu.ca/~ssurjano/ackley.html."""
 
     a = -32.768         # Grid lower bound
