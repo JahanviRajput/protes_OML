@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 import time
 from protes import protes
@@ -53,6 +54,25 @@ def demofed():
 
     return y_value, t_value
 
+def dataframe_output(y_value, t_value):
+    # Create a dictionary with the column names
+    columns = {'col': ['y', 't']}
+    columns.update({f'P{i:02d}': [0, 0] for i in range(1, 11)})
+    # Create the DataFrame
+    df = pd.DataFrame(columns)
+    # Drop specified columns
+    df.drop(columns=['P03', 'P06', 'P07', 'P09'], inplace=True)
+    
+    # Assign the values to the DataFrame rows, ensuring lengths match the number of columns
+    df.iloc[0, 1:] = y_value
+    df.iloc[1, 1:] = t_value
+    
+    # Print the DataFrame after assigning values
+    return
+
 # Execute the demofed function
+
 y_value, t_value = demofed()
-# print("y_value",y_value,"\n t_value" ,t_value)
+print("Output \n y_value",y_value,"\n t_value" ,t_value)
+df = dataframe_output(y_value, t_value)
+print(df)
