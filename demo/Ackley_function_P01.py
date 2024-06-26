@@ -71,7 +71,7 @@ def demo():
     d = 100              # Dimension
     n = 11               # Mode size
     m = int(1.E+4)       # Number of requests to the objective function
-    f = func_build(d, n) # Target function, which defines the array elements
+    f = func_buildfed(d, n) # Target function, which defines the array elements
 
     t = tpc()
     i_opt, y_opt = protes(f, d, n, m, log=True, k = 100)
