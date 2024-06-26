@@ -3,6 +3,15 @@ import jax.numpy as jnp
 import optax
 from time import perf_counter as tpc
 
+# import sys
+# sys.path.append('../demo/')  
+# from Ackley_function_P01 import *
+# from Alpine_function_P02 import *
+# from Griewank_function_P04 import *
+# from Michalewicz_function_P05 import *
+# from Rastrigin_function_P08 import *
+# from Schwefel_function_P10 import *
+
 
 def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
            is_max=False, log=False, info={}, P=None, with_info_p=False,
@@ -87,7 +96,8 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
         if info['m_max'] and info['m'] >= info['m_max']:
             break
         # sorting y for finding top k values
-        ind = jnp.argsort(y, kind='stable')
+        # ind = jnp.argsort(y, kind='stable')
+        ind = jnp.argsort(y, stable=True)
         # selecting topk values
         ind = (ind[::-1] if is_max else ind)[:k_top]
 
@@ -239,3 +249,10 @@ def _sample(Yl, Ym, Yr, Zm, key):
     il = jnp.array(il, dtype=jnp.int32)
     ir = jnp.array(ir, dtype=jnp.int32)
     return jnp.hstack((il, im, ir))
+
+# f = func_buildfed
+# d = 5              # Dimension
+# n = 11             # Mode size
+# m = int(10000)     # Number of requests to the objective function
+
+# protes(f, d, n, m, log=True, k = 100, k_top=10)
