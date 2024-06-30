@@ -28,11 +28,14 @@ def protes_federated_learning(f, d, n, m=None,k=100, n_bb = 10, k_gd=1, lr=5.E-2
     if with_info_full:
         info.update({
             'P_list': [], 'I_list': [], 'y_list': []})
-
-    rng = jax.random.PRNGKey(seed)
+        
+    seed = [random.randint(0, 100) for _ in range(n_bb)]
+    rang = []
+    for i in seed:
+        rang.append(jax.random.PRNGKey(i))
 
     if P is None:
-        rng, key = jax.random.split(rng)
+        rang[0], key = jax.random.split(rang[0])
         P = _generate_initial(d, n, r, key)
     elif len(P[1].shape) != 4:
         raise ValueError('Initial P tensor should have special format')
@@ -72,10 +75,14 @@ def protes_federated_learning(f, d, n, m=None,k=100, n_bb = 10, k_gd=1, lr=5.E-2
         else:
             Pl, Pm, Pr = P
             Zm = interface_matrices(Pm, Pr)
-            rng, key = jax.random.split(rng)
-            t=tpc()
-            I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))                                    ##TO CHECK HOW LONG SAMPLING TAKES##
-            parts = jnp.split(I, n_bb)
+            parts = []
+            for i in range(len(rang)):
+                rang[i], key = jax.random.split(rang[i])
+                t=tpc()
+                I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k//n_bb))
+                # print('tpc()-t',tpc()-t)
+                ##TO CHECK HOW LONG SAMPLING TAKES##
+                parts.append(I) 
         y_parts = []
         for i in parts:
           y = f(i)
@@ -85,8 +92,6 @@ def protes_federated_learning(f, d, n, m=None,k=100, n_bb = 10, k_gd=1, lr=5.E-2
               continue
           y_parts.append(y)
         y = jnp.min(jnp.array(y_parts), axis=1)
-        # print("size",y.shape)
-        # print("y",y)
 
         info['m'] += y.shape[0]
 
@@ -243,9 +248,9 @@ def demofed():
     i_opt=np.zeros(1)
     y_opt=np.zeros(1)
 
-    d =  5             # Dimension
+    d =  100             # Dimension
     n = 11             # Mode size
-    m = int(10000)       # Number of requests to the objective function
+    m = int(100000)       # Number of requests to the objective function
     seed = [random.randint(0, 100) for _ in range(1)]
     t=tpc()
     f1 = func_buildfed(d, n)
@@ -258,7 +263,7 @@ def demofed():
     for f in functions:
       for i in range(1):
           t = tpc()
-          i_opt, y_optk = protes_federated_learning(f, d, n, m, log=True, k = 100, n_bb = 5, seed=seed[i])
+          i_opt, y_optk = protes_federated_learning(f, d, n, m, log=True, k = 1000, n_bb = 10, seed=seed[i])
           # y_opt[i]=y_optk
           print(f'\nRESULT | y opt = {y_optk:-11.4e} | time = {tpc()-t:-10.4f}\n\n')
           t_value=(tpc()-t)
