@@ -110,8 +110,8 @@ def protes_federated_learning(f, d, n, m=None,k=100, n_bb = 10, k_gd=1, lr=5.E-2
             break
 
         
-        # ind = jnp.argsort(y, kind='stable')
-        ind = jnp.argsort(y, stable=True)
+        ind = jnp.argsort(y, kind='stable')
+        # ind = jnp.argsort(y, stable=True)
         ind = (ind[::-1] if is_max else ind)[:n_bb]
 
         for _ in range(k_gd):
@@ -276,7 +276,20 @@ def demofed():
     BmFuncQing(d=d, n=n, name='P-07'),
     BmFuncRastrigin(d=d, n=n, name='P-08'),
     BmFuncSchaffer(d=d, n=n, name='P-09'),
-    BmFuncSchwefel(d=d, n=n, name='P-10')]
+    BmFuncSchwefel(d=d, n=n, name='P-10'),
+    # BmQuboMaxcut(d=50, name='P-11'),
+    # BmQuboMvc(d=50, name='P-12'),
+    # BmQuboKnapQuad(d=50, name='P-13'),
+    # BmQuboKnapAmba(d=50, name='P-14'),
+
+    # BmOcSimple(d=25, name='P-15'),
+    # BmOcSimple(d=50, name='P-16'),
+    # BmOcSimple(d=100, name='P-17'),
+
+    # BmOcSimpleConstr(d=25, name='P-18'),
+    # BmOcSimpleConstr(d=50, name='P-19'),
+    # BmOcSimpleConstr(d=100, name='P-20')
+    ]
 
     # BmFuncPiston(d=d, n=n, name='P-06'), not there
 
