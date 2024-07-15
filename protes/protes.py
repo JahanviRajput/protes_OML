@@ -80,6 +80,7 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
             rng, key = jax.random.split(rng)
             # I is indices for which we will choose x ---- dim is (d,1)
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
+            # print("I.shape",I.shape)
 
         y = f(I)
         if y is None:

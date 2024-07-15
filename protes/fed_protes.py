@@ -13,6 +13,7 @@ from Griewank_function_P04 import *
 from Michalewicz_function_P05 import *
 from Rastrigin_function_P08 import *
 from Schwefel_function_P10 import *
+from Schaffer_function_P09 import *
 
 def protes_federated_learning(f, d, n, m=None,k=100, n_bb = 10, k_gd=1, lr=5.E-2, r=5, seed=0,
            is_max=False, log=False, info={}, P=None, with_info_p=False,
@@ -244,6 +245,7 @@ def _sample(Yl, Ym, Yr, Zm, key):
 
 
 
+
 def demofed():
     i_opt=np.zeros(1)
     y_opt=np.zeros(1)
@@ -254,12 +256,14 @@ def demofed():
     seed = [random.randint(0, 100) for _ in range(1)]
     t=tpc()
     f1 = func_buildfed(d, n)
-    # f2 = func_build_alp(d, n)
-    # f4 = func_build_griewank(d, n)
-    # f5 = func_build_michalewicz(d, m)
-    # f8 = func_build_Rastrigin(d, m)
-    # f10 = func_build_Schwefel(d, n)
-    functions = [f1]
+    f2 = func_build_alp(d, n)
+    f4 = func_build_griewank(d, n)
+    f5 = func_build_michalewicz(d, n)
+    f8 = func_build_Rastrigin(d, n)
+    f9 = func_build_Schwefel(d, n)
+    f10 = func_build_Schwefel(d, n)
+
+    functions = [f1, f2, f4, f5, f8, f9, f10]
     for f in functions:
       for i in range(1):
           t = tpc()
