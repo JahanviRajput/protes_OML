@@ -8,11 +8,12 @@ import numpy as np
 from time import perf_counter as tpc
 from submodlib import FacilityLocationFunction
 
-
+import sys
+sys.path.append('../') 
 from protes import protes
 
 
-def func_build_Schwefel(d, n):
+def func_build_Schaffer(d, n):
     """https://www.sfu.ca/~ssurjano/schaffer2.html
     Schwefel multivariable analytic functions"""
     def func(I):
@@ -28,28 +29,12 @@ def func_build_Schwefel(d, n):
         return 0.5 + (sin_term - 0.5) / denominator
     return func
 
-    def func(I):
-        """
-        https://www.sfu.ca/~ssurjano/rastr.html
-        Compute the value of the target function for each sample in array I.
-        
-        Args:
-        I (array-like): Array of samples.
-        
-        Returns:
-        array-like: Array of function values corresponding to each sample in I.
-        """
-        y = np.array([f(x) for x in I])
-        return y
-
-    return func
-
 def demo():
 
     d = 100              # Dimension
     n = 11               # Mode size
     m = int(1.E+4)       # Number of requests to the objective function
-    f = func_build(d, n) # Target function, which defines the array elements
+    f = func_build_Schaffer(d, n) # Target function, which defines the array elements
 
     t = tpc()
     i_opt, y_opt = protes(f, d, n, m, log=True, k = 100)
