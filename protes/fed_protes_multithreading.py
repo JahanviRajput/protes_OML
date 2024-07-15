@@ -260,7 +260,7 @@ def _prep_bm_func(bm):
     return bm
 
 # Assuming the function definitions are provided
-def demofed():
+def demofed_yt_values():
     i_opt = np.zeros(10)
     y_opt = np.zeros(10)
 
@@ -335,6 +335,7 @@ def demofed():
         print(y_value,"\n",t_value)
     return y_value, t_value
 
+#dataframe for y and t values
 def dataframe_output(y_value, t_value):
     # Create a dictionary with the column names
     columns = {'col': ['y', 't']}
@@ -347,15 +348,120 @@ def dataframe_output(y_value, t_value):
     # Assign the values to the DataFrame rows, ensuring lengths match the number of columns
     df.iloc[0, 1:] = y_value
     df.iloc[1, 1:] = t_value
-
+    df = df.set_index('col').T
+    df.index.name = 'Functions'
     return df
 
-# Execute the demofed function
+# Execute the demofed_yt_fun function
 
-y_value, t_value = demofed()
+y_value, t_value = demofed_yt_values()
 df = dataframe_output(y_value, t_value)
-d = df.set_index('col').T
-d.index.name = 'Functions'
 file_path = os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading.csv")
-d.to_csv(file_path)
+df.to_csv(file_path)
+
+
+
+# Assuming the function definitions are provided
+def demofed_ym_values():
+    i_opt = np.zeros(10)
+    y_opt = np.zeros(10)
+
+    d = 5              # Dimension
+    n = 11             # Mode size
+    m = int(10000)     # Number of requests to the objective function
+    seed = [random.randint(0, 100) for _ in range(10)]
+
+    functions = [BmFuncAckley(d=d, n=n, name='P-01'),  BmFuncAlpine(d=d, n=n, name='P-02'),
+    BmFuncExp(d=d, n=n, name='P-03'),
+    BmFuncGriewank(d=d, n=n, name='P-04'),
+    BmFuncMichalewicz(d=d, n=n, name='P-05'),
+    BmFuncQing(d=d, n=n, name='P-07'),
+    BmFuncRastrigin(d=d, n=n, name='P-08'),
+    BmFuncSchaffer(d=d, n=n, name='P-09'),
+    BmFuncSchwefel(d=d, n=n, name='P-10'),
+    # BmQuboMaxcut(d=50, name='P-11'),
+    # BmQuboMvc(d=50, name='P-12'),
+    # BmQuboKnapQuad(d=50, name='P-13'),
+    # BmQuboKnapAmba(d=50, name='P-14'),
+
+    # BmOcSimple(d=25, name='P-15'),
+    # BmOcSimple(d=50, name='P-16'),
+    # BmOcSimple(d=100, name='P-17'),
+
+    # BmOcSimpleConstr(d=25, name='P-18'),
+    # BmOcSimpleConstr(d=50, name='P-19'),
+    # BmOcSimpleConstr(d=100, name='P-20')
+    ]
+
+    # BmFuncPiston(d=d, n=n, name='P-06'), not there
+
+    BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
+                'P-08', 'P-09', 'P-10']
+    BM_QUBO      = ['P-11', 'P-12', 'P-13', 'P-14']
+    BM_OC        = ['P-15', 'P-16', 'P-17']
+    BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
+    # functions = [func_buildfed(d, n), func_build_alp(d, n), func_build_griewank(d, n),
+    #              func_build_michalewicz(d, n), func_build_Rastrigin(d, n), func_build_Schaffer(d,n), func_build_Schwefel(d, n)]
+
+    y_value = []
+    t_value = []
+
+    def optimize_function(f, seed_idx):
+        np.random.seed(seed[seed_idx])
+        t_start = time.time()
+        i_opt, y_optk = protes_federated_learning(f, d, n, m, log=True, k=100, seed=seed[seed_idx])
+        time_taken = (time.time() - t_start)/10
+        return y_optk, time_taken
+    v = 0
+    for m in range(100,10000,500):
+        y_value = [m]
+        t_value = [m]
+        for f in functions:
+            if m == 100:
+                if f.name in BM_FUNC:
+                    # We carry out a small random shift of the function's domain,
+                    # so that the optimum does not fall into the middle of the domain:
+                    f = _prep_bm_func(f)
+                else:
+                    f.prep()
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                results = list(executor.map(optimize_function, [f]*10, range(10)))
+
+            y_opts, times = zip(*results)
+            min_y_opt = np.min(y_opts)
+            min_y_opt_index = np.argmin(y_opts)
+            corresponding_time = times[min_y_opt_index]
+
+            y_value.append(min_y_opt)
+            t_value.append(corresponding_time)
+
+            for i, (y_optk, time_taken) in enumerate(results):
+                print(f'\n Function: {f} \n \nRESULT | y opt = {y_optk:-11.4e} | time = {time_taken:-10.4f}\n\n')
+
+            print(y_value,"\n",t_value)
+        df1.iloc[v] = y_value
+        df2.iloc[v] = t_value
+        v +=1
+
+
+#dataframe for m and y values
+def dataframe_creation():
+    # Create a dictionary with the column names
+    columns = {'m': [i for i in range(100,10000,500)]}
+    columns.update({f'P{i:02d}': [0 for i in range(100,10000,500)] for i in range(1,11)})
+    # Create the DataFrame
+    df1 = pd.DataFrame(columns)
+    df1.drop(columns=['P06'], inplace=True)
+    return df1
+
+df1 = dataframe_creation()
+df2 = dataframe_creation()
+demofed_ym_values()
+df1 = df1.set_index('m').T
+df1.index.name = 'Functions'
+df1.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_y.csv"))
+df2 = df2.set_index('m').T
+df2.index.name = 'Functions'
+df2.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_t.csv"))
+
 
