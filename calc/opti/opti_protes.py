@@ -1,7 +1,8 @@
 from opti import Opti
 
-
 try:
+    import sys
+    sys.path.append("../")
     from protes import protes
     with_protes = True
 except Exception as e:

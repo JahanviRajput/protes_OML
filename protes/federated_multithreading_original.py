@@ -7,6 +7,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 from time import perf_counter as tpc
+import concurrent.futures
 import os
 import warnings
 warnings.filterwarnings("ignore")
@@ -269,19 +270,22 @@ def demofed_yt_values():
     m = int(10000)     # Number of requests to the objective function
     seed = [random.randint(0, 100) for _ in range(10)]
 
-    functions = [BmFuncAckley(d=d, n=n, name='P-01'),  BmFuncAlpine(d=d, n=n, name='P-02'),
-    BmFuncExp(d=d, n=n, name='P-03'),
-    BmFuncGriewank(d=d, n=n, name='P-04'),
-    BmFuncMichalewicz(d=d, n=n, name='P-05'),
-    BmFuncQing(d=d, n=n, name='P-07'),
-    BmFuncRastrigin(d=d, n=n, name='P-08'),
-    BmFuncSchaffer(d=d, n=n, name='P-09'),
-    BmFuncSchwefel(d=d, n=n, name='P-10'),
-    # BmQuboMaxcut(d=50, name='P-11'),
+    functions = [
+    # BmFuncAckley(d=d, n=n, name='P-01'),  
+    # BmFuncAlpine(d=d, n=n, name='P-02'),
+    # BmFuncExp(d=d, n=n, name='P-03'),
+    # BmFuncGriewank(d=d, n=n, name='P-04'),
+    # BmFuncMichalewicz(d=d, n=n, name='P-05'),
+    # BmFuncPiston(d=d, n=n, name='P-06'),
+    # BmFuncQing(d=d, n=n, name='P-07'),
+    # BmFuncRastrigin(d=d, n=n, name='P-08'),
+    # BmFuncSchaffer(d=d, n=n, name='P-09'),
+    # BmFuncSchwefel(d=d, n=n, name='P-10'),
+        
+    # BmQuboMaxcut(d=50, name='P-11'), # ValueError: BM "P-11" is a tensor. Can`t compute it in the point #find out the function call of protes for these
     # BmQuboMvc(d=50, name='P-12'),
     # BmQuboKnapQuad(d=50, name='P-13'),
     # BmQuboKnapAmba(d=50, name='P-14'),
-
     # BmOcSimple(d=25, name='P-15'),
     # BmOcSimple(d=50, name='P-16'),
     # BmOcSimple(d=100, name='P-17'),
@@ -291,7 +295,7 @@ def demofed_yt_values():
     # BmOcSimpleConstr(d=100, name='P-20')
     ]
 
-    # BmFuncPiston(d=d, n=n, name='P-06'), not there
+    # BmFuncPiston(d=d, n=n, name='P-06'), installed but broadcast error
 
     BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
                 'P-08', 'P-09', 'P-10']
@@ -318,8 +322,8 @@ def demofed_yt_values():
             f = _prep_bm_func(f)
         else:
             f.prep()
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            results = list(executor.map(optimize_function, [f]*10, range(10)))
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(optimize_function, [f]*1, range(1)))
 
         y_opts, times = zip(*results)
         min_y_opt = np.min(y_opts)
@@ -454,14 +458,14 @@ def dataframe_creation():
     df1.drop(columns=['P06'], inplace=True)
     return df1
 
-df1 = dataframe_creation()
-df2 = dataframe_creation()
-demofed_ym_values()
-df1 = df1.set_index('m').T
-df1.index.name = 'Functions'
-df1.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_y.csv"))
-df2 = df2.set_index('m').T
-df2.index.name = 'Functions'
-df2.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_t.csv"))
+# df1 = dataframe_creation()
+# df2 = dataframe_creation()
+# demofed_ym_values()
+# df1 = df1.set_index('m').T
+# df1.index.name = 'Functions'
+# df1.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_y.csv"))
+# df2 = df2.set_index('m').T
+# df2.index.name = 'Functions'
+# df2.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_t.csv"))
 
 

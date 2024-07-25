@@ -81,13 +81,16 @@ def protes_subset_submod(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5
             Pl, Pm, Pr = P
             Zm = interface_matrices(Pm, Pr)
             rng, key = jax.random.split(rng)
+            print("hi i am here")
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
 
         obj = LogDeterminantFunction(n=k, data=I, mode="dense", metric="euclidean", lambdaVal=1)
         I = jnp.array(obj.maximize(budget=subset_size, optimizer='NaiveGreedy', stopIfZeroGain=False, stopIfNegativeGain=False, verbose=False))
+        print("\nI.shape",I.shape)
         I = jnp.array([[int(x) for x in row] for row in I])
-        print("I.shape",I.shape)
+        print("\nI.shape",I.shape)
         y = f(I)
+        print("y.shape",y.shape)
 
         if y is None:
             break
@@ -105,9 +108,9 @@ def protes_subset_submod(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5
         # ind = jnp.argsort(y, kind='stable')
         ind = jnp.argsort(y, stable=True)
         ind = (ind[::-1] if is_max else ind)[:k_top]
-
         for _ in range(k_gd):
             state, P = optimize(state, P, I[ind, :])
+        # print("P",P)
 
         if with_info_p:
             info['P'] = P
@@ -247,14 +250,14 @@ def demofed():
     i_opt = np.zeros(10)
     y_opt = np.zeros(10)
 
-    d = 5              # Dimension
+    d = 2              # Dimension
     n = 11             # Mode size
     m = int(10000)     # Number of requests to the objective function
     seed = [random.randint(0, 100) for _ in range(10)]
 
-    functions = [func_buildfed(d, n), func_build_alp(d, n), func_build_griewank(d, n),
-                 func_build_michalewicz(d, m), func_build_Rastrigin(d, m), func_build_Schwefel(d, n)]
-    # functions = [func_buildfed(d, n)]
+    # functions = [func_buildfed(d, n), func_build_alp(d, n), func_build_griewank(d, n),
+    #              func_build_michalewicz(d, m), func_build_Rastrigin(d, m), func_build_Schwefel(d, n)]
+    functions = [func_buildfed(d, n)]
 
     y_value = []
     t_value = []
@@ -262,14 +265,14 @@ def demofed():
     def optimize_function(f, seed_idx):
         np.random.seed(seed[seed_idx])
         t_start = time.time()
-        i_opt, y_optk = protes_subset_submod(f, d, n, m, log=True, k=1000, k_top=10, seed=seed[seed_idx], subset_size= 100)
+        i_opt, y_optk = protes_subset_submod(f, d, n, m, log=True, k=1000000, k_top=10, seed=seed[seed_idx], subset_size= 100)
         # i_opt, y_optk = protes(f, d, n, m, log=True, k=100, k_top=10, seed=seed[seed_idx])
         time_taken = (time.time() - t_start)/10
         return y_optk, time_taken
 
     for f in functions:
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            results = list(executor.map(optimize_function, [f]*10, range(10)))
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            results = list(executor.map(optimize_function, [f]*1, range(1)))
 
         y_opts, times = zip(*results)
         min_y_opt = np.min(y_opts)

@@ -7,6 +7,7 @@ from .opti_pso import OptiPSO
 from .opti_protes import OptiProtes
 from .opti_spsa import OptiSPSA
 from .opti_ttopt import OptiTTOpt
+from .opti_fed import OptifedProtes
 
 
 def opti_get():
@@ -16,6 +17,7 @@ def opti_get():
     optis.append(OptiOptimatt)
     optis.append(OptiPortfolio)
     optis.append(OptiProtes)
+    optis.append(OptifedProtes)
     optis.append(OptiPSO)
     optis.append(OptiSPSA)
     optis.append(OptiTTOpt)

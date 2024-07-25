@@ -97,8 +97,8 @@ def protes(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
         if info['m_max'] and info['m'] >= info['m_max']:
             break
         # sorting y for finding top k values
-        # ind = jnp.argsort(y, kind='stable')
-        ind = jnp.argsort(y, stable=True)
+        ind = jnp.argsort(y, kind='stable')
+        # ind = jnp.argsort(y, stable=True)
         # selecting topk values
         ind = (ind[::-1] if is_max else ind)[:k_top]
 
