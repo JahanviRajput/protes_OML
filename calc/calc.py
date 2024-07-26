@@ -41,34 +41,60 @@ from constr import ind_tens_max_ones
 from teneva_bm import *
 
 bms = [
-    BmFuncAckley(d=7, n=16, name='P-01'),
-    BmFuncAlpine(d=7, n=16, name='P-02'),
-    BmFuncExp(d=7, n=16, name='P-03'),
-    BmFuncGriewank(d=7, n=16, name='P-04'),
-    BmFuncMichalewicz(d=7, n=16, name='P-05'),
-    BmFuncPiston(d=7, n=16, name='P-06'),
-    BmFuncQing(d=7, n=16, name='P-07'),
-    BmFuncRastrigin(d=7, n=16, name='P-08'),
-    BmFuncSchaffer(d=7, n=16, name='P-09'),
-    BmFuncSchwefel(d=7, n=16, name='P-10'),
+    # BmFuncAckley(d=7, n=16, name='P-01'),
+    # BmFuncAlpine(d=7, n=16, name='P-02'),
+    # BmFuncExp(d=7, n=16, name='P-03'),
+    # BmFuncGriewank(d=7, n=16, name='P-04'),
+    # BmFuncMichalewicz(d=7, n=16, name='P-05'),
+    # BmFuncPiston(d=7, n=16, name='P-06'),
+    # BmFuncQing(d=7, n=16, name='P-07'),
+    # BmFuncRastrigin(d=7, n=16, name='P-08'),
+    # BmFuncSchaffer(d=7, n=16, name='P-09'),
+    # BmFuncSchwefel(d=7, n=16, name='P-10'), 
 
-    BmQuboMaxcut(d=50, name='P-11'),
-    BmQuboMvc(d=50, name='P-12'),
-    BmQuboKnapQuad(d=50, name='P-13'),
-    BmQuboKnapAmba(d=50, name='P-14'),
+    #### new analytic functions
 
-    BmOcSimple(d=25, name='P-15'),
-    BmOcSimple(d=50, name='P-16'),
-    BmOcSimple(d=100, name='P-17'),
+    # not working for now functions
+    BmFuncChung(d = 7, n = 16, name ='P-21'),
 
-    BmOcSimpleConstr(d=25, name='P-18'),
-    BmOcSimpleConstr(d=50, name='P-19'),
-    BmOcSimpleConstr(d=100, name='P-20'),
+    BmFuncDixon(d = 7, n = 16, name ='P-22'), 
+
+    BmFuncPathological(d = 7, n = 16, name ='P-23'),
+    BmFuncPinter(d = 7, n = 16, name ='P-24'), 
+    BmFuncPowell(d = 7, n = 16, name ='P-25'), 
+
+    BmFuncQing(d = 7, n = 16, name ='P-26'),
+    BmFuncRosenbrock(d = 7, n = 16, name ='P-27'),
+
+    BmFuncSalomon(d = 7, n = 16, name ='P-28'), 
+    BmFuncSphere(d = 7, n = 16, name ='P-29'), 
+    BmFuncSquares(d = 7, n = 16, name ='P-30'),
+    BmFuncTrid(d = 7, n = 16, name ='P-31'), 
+    BmFuncTrigonometric(d = 7, n = 16, name ='P-32'), 
+    BmFuncWavy(d = 7, n = 16, name ='P-33'), 
+    BmFuncYang(d = 7, n = 16, name ='P-34'),
+
+    
+    
+    # BmQuboMaxcut(d=50, name='P-11'),
+    # BmQuboMvc(d=50, name='P-12'),
+    # BmQuboKnapQuad(d=50, name='P-13'),
+    # BmQuboKnapAmba(d=50, name='P-14'),
+
+    # BmOcSimple(d=25, name='P-15'),
+    # BmOcSimple(d=50, name='P-16'),
+    # BmOcSimple(d=100, name='P-17'),
+
+    # BmOcSimpleConstr(d=25, name='P-18'),
+    # BmOcSimpleConstr(d=50, name='P-19'),
+    # BmOcSimpleConstr(d=100, name='P-20'),
 ]
 
 
 BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
-                'P-08', 'P-09', 'P-10']
+                'P-08', 'P-09', 'P-10', 'P-21', 'P-22','P-23', 'P-24', 
+                'P-25', 'P-26', 'P-27', 'P-28', 'P-29', 'P-30', 
+                'P-31', 'P-32', 'P-33', 'P-34']
 BM_QUBO      = ['P-11', 'P-12', 'P-13', 'P-14']
 BM_OC        = ['P-15', 'P-16', 'P-17']
 BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
