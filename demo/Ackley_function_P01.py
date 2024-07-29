@@ -28,7 +28,7 @@ def func_buildfed(d, n):
         # I = jax.numpy.array(objFL.maximize(budget=10,optimizer='NaiveGreedy', stopIfZeroGain=False, stopIfNegativeGain=False, verbose=False))
         # # print(len(I))
         X = I / (n - 1) * (b - a) + a
-        print("X values:",X)
+        # print("X values:",X) 
         y1 = np.sqrt(np.sum(X**2, axis=1) / d)
         y1 = - par_a * np.exp(-par_b * y1)
 

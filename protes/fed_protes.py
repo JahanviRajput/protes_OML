@@ -273,5 +273,5 @@ def demofed():
           t_value=(tpc()-t)
     return y_optk, t_value
 y,t=demofed()
-# print(y,t)
+print(y,t)
 

@@ -52,42 +52,42 @@ bms = [
     # BmFuncSchaffer(d=7, n=16, name='P-09'),
     # BmFuncSchwefel(d=7, n=16, name='P-10'), 
 
-    #### new analytic functions
+    ### new analytic functions
+    #### need upgarded version
 
-    # not working for now functions
-    BmFuncChung(d = 7, n = 16, name ='P-21'),
+    # BmFuncChung(d = 7, n = 16, name ='P-21'),
 
-    BmFuncDixon(d = 7, n = 16, name ='P-22'), 
+    # BmFuncDixon(d = 7, n = 16, name ='P-22'), 
 
-    BmFuncPathological(d = 7, n = 16, name ='P-23'),
-    BmFuncPinter(d = 7, n = 16, name ='P-24'), 
-    BmFuncPowell(d = 7, n = 16, name ='P-25'), 
+    # BmFuncPathological(d = 7, n = 16, name ='P-23'),
+    # BmFuncPinter(d = 7, n = 16, name ='P-24'), 
+    # BmFuncPowell(d = 7, n = 16, name ='P-25'), 
 
-    BmFuncQing(d = 7, n = 16, name ='P-26'),
-    BmFuncRosenbrock(d = 7, n = 16, name ='P-27'),
+    # BmFuncQing(d = 7, n = 16, name ='P-26'),
+    # BmFuncRosenbrock(d = 7, n = 16, name ='P-27'),
 
-    BmFuncSalomon(d = 7, n = 16, name ='P-28'), 
-    BmFuncSphere(d = 7, n = 16, name ='P-29'), 
-    BmFuncSquares(d = 7, n = 16, name ='P-30'),
-    BmFuncTrid(d = 7, n = 16, name ='P-31'), 
-    BmFuncTrigonometric(d = 7, n = 16, name ='P-32'), 
-    BmFuncWavy(d = 7, n = 16, name ='P-33'), 
-    BmFuncYang(d = 7, n = 16, name ='P-34'),
+    # BmFuncSalomon(d = 7, n = 16, name ='P-28'), 
+    # BmFuncSphere(d = 7, n = 16, name ='P-29'), 
+    # BmFuncSquares(d = 7, n = 16, name ='P-30'),
+    # BmFuncTrid(d = 7, n = 16, name ='P-31'), 
+    # BmFuncTrigonometric(d = 7, n = 16, name ='P-32'), 
+    # BmFuncWavy(d = 7, n = 16, name ='P-33'), 
+    # BmFuncYang(d = 7, n = 16, name ='P-34'),
 
     
     
-    # BmQuboMaxcut(d=50, name='P-11'),
-    # BmQuboMvc(d=50, name='P-12'),
-    # BmQuboKnapQuad(d=50, name='P-13'),
-    # BmQuboKnapAmba(d=50, name='P-14'),
+    BmQuboMaxcut(d=50, name='P-11'),
+    BmQuboMvc(d=50, name='P-12'),
+    BmQuboKnapQuad(d=50, name='P-13'),
+    BmQuboKnapAmba(d=50, name='P-14'),
 
-    # BmOcSimple(d=25, name='P-15'),
-    # BmOcSimple(d=50, name='P-16'),
-    # BmOcSimple(d=100, name='P-17'),
+    BmOcSimple(d=25, name='P-15'),
+    BmOcSimple(d=50, name='P-16'),
+    BmOcSimple(d=100, name='P-17'),
 
-    # BmOcSimpleConstr(d=25, name='P-18'),
-    # BmOcSimpleConstr(d=50, name='P-19'),
-    # BmOcSimpleConstr(d=100, name='P-20'),
+    BmOcSimpleConstr(d=25, name='P-18'),
+    BmOcSimpleConstr(d=50, name='P-19'),
+    BmOcSimpleConstr(d=100, name='P-20'),
 ]
 
 
@@ -103,14 +103,14 @@ BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
 from opti import *
 Optis = {
     'my': OptifedProtes,
-    'Our': OptiProtes,
-    'BS-1': OptiTTOpt,
-    'BS-2': OptiOptimatt,
-    'BS-3': OptiOPO,
-    'BS-4': OptiPSO,
-    'BS-5': OptiNB,
-    'BS-6': OptiSPSA,
-    'BS-7': OptiPortfolio,
+    # 'Our': OptiProtes,
+    # 'BS-1': OptiTTOpt,
+    # 'BS-2': OptiOptimatt,
+    # 'BS-3': OptiOPO,
+    # 'BS-4': OptiPSO,
+    # 'BS-5': OptiNB,
+    # 'BS-6': OptiSPSA,
+    # 'BS-7': OptiPortfolio,
 }
 
 
@@ -159,7 +159,8 @@ def calc(m=int(1.E+4), seed=0):
                 Pr = jnp.array(P[-1], copy=True)
                 P = [Pl, Pm, Pr]
                 opti.opts(P=P)
-
+            if opti_name == 'my':
+                pass
             opti.optimize()
 
             log(opti.info())

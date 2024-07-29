@@ -1,4 +1,4 @@
-from submodlib import LogDeterminantFunction
+from submodlib import LogDeterminantFunction, FacilityLocationFunction
 from time import perf_counter as tpc
 import jax
 import jax.numpy as jnp
@@ -25,11 +25,11 @@ from Michalewicz_function_P05 import *
 from Rastrigin_function_P08 import *
 from Schwefel_function_P10 import *
 
-def protes_subset_submod(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
+def protes_subset_submod(f, d, n, m=None, k=100, k_gd=1, lr=5.E-2, r=5, seed=0,
            is_max=False, log=False, info={}, P=None, with_info_p=False,
            with_info_i_opt_list=False, with_info_full=False, sample_ext=None, subset_size = 100):
     time = tpc()
-    info.update({'d': d, 'n': n, 'm_max': m, 'm': 0, 'k': k, 'k_top': k_top,
+    info.update({'d': d, 'n': n, 'm_max': m, 'm': 0, 'k': k, 'subset_size': subset_size,
         'k_gd': k_gd, 'lr': lr, 'r': r, 'seed': seed, 'is_max': is_max,
         'is_rand': P is None, 't': 0, 'i_opt': None, 'y_opt': None,
         'm_opt_list': [], 'i_opt_list': [], 'y_opt_list': []})
@@ -81,16 +81,15 @@ def protes_subset_submod(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5
             Pl, Pm, Pr = P
             Zm = interface_matrices(Pm, Pr)
             rng, key = jax.random.split(rng)
-            print("hi i am here")
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
 
-        obj = LogDeterminantFunction(n=k, data=I, mode="dense", metric="euclidean", lambdaVal=1)
-        I = jnp.array(obj.maximize(budget=subset_size, optimizer='NaiveGreedy', stopIfZeroGain=False, stopIfNegativeGain=False, verbose=False))
-        print("\nI.shape",I.shape)
-        I = jnp.array([[int(x) for x in row] for row in I])
-        print("\nI.shape",I.shape)
+
+        # obj = LogDeterminantFunction(n=k, data=I, mode="dense", metric="euclidean", lambdaVal=1)
+        obj = FacilityLocationFunction(n=k, data=I, mode="dense", metric="euclidean")
+        subset = obj.maximize(budget=subset_size, optimizer='NaiveGreedy', stopIfZeroGain=False, stopIfNegativeGain=False, verbose=False)
+        ind = [i[0] for i in subset]
+        I = jnp.array([I[i] for i in ind])
         y = f(I)
-        print("y.shape",y.shape)
 
         if y is None:
             break
@@ -105,12 +104,11 @@ def protes_subset_submod(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5
         if info['m_max'] and info['m'] >= info['m_max']:
             break
 
-        # ind = jnp.argsort(y, kind='stable')
-        ind = jnp.argsort(y, stable=True)
-        ind = (ind[::-1] if is_max else ind)[:k_top]
+        ind = jnp.argsort(y, kind='stable')
+        # ind = jnp.argsort(y, stable=True)
+        # ind = (ind[::-1] if is_max else ind)[:k_top]
         for _ in range(k_gd):
             state, P = optimize(state, P, I[ind, :])
-        # print("P",P)
 
         if with_info_p:
             info['P'] = P
@@ -176,7 +174,7 @@ def _log(info, log=False, is_new=False, is_end=False):
     if not log or (not is_new and not is_end):
         return
 
-    text = f'protes > '
+    text = f'\n protes > '
     text += f'm {info["m"]:-7.1e} | '
     text += f't {info["t"]:-9.3e} | '
     text += f'y {info["y_opt"]:-11.4e}'
@@ -250,7 +248,7 @@ def demofed():
     i_opt = np.zeros(10)
     y_opt = np.zeros(10)
 
-    d = 2              # Dimension
+    d = 5              # Dimension
     n = 11             # Mode size
     m = int(10000)     # Number of requests to the objective function
     seed = [random.randint(0, 100) for _ in range(10)]
@@ -264,15 +262,16 @@ def demofed():
 
     def optimize_function(f, seed_idx):
         np.random.seed(seed[seed_idx])
+        total_size = 1000
         t_start = time.time()
-        i_opt, y_optk = protes_subset_submod(f, d, n, m, log=True, k=1000000, k_top=10, seed=seed[seed_idx], subset_size= 100)
+        i_opt, y_optk = protes_subset_submod(f, d, n, m, log=True, k=total_size, seed=seed[seed_idx], subset_size= int(0.1*total_size))
         # i_opt, y_optk = protes(f, d, n, m, log=True, k=100, k_top=10, seed=seed[seed_idx])
         time_taken = (time.time() - t_start)/10
         return y_optk, time_taken
 
     for f in functions:
         with ThreadPoolExecutor(max_workers=1) as executor:
-            results = list(executor.map(optimize_function, [f]*1, range(1)))
+            results = list(executor.map(optimize_function, [f]*10, range(10)))
 
         y_opts, times = zip(*results)
         min_y_opt = np.min(y_opts)
@@ -307,8 +306,5 @@ def dataframe_output(y_value, t_value):
 
 y_value, t_value = demofed()
 ##test
-# y_value = [0,0,0,0,0,0]
-# t_value = [0,0,0,0,0,0]
-# print("Output \n y_value",y_value,"\n t_value" ,t_value)
-df = dataframe_output(y_value, t_value)
-print(df)
+# df = dataframe_output(y_value, t_value)
+# print(df)
