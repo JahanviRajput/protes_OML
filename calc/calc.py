@@ -5,6 +5,8 @@ import pickle
 import sys
 from time import perf_counter as tpc
 
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 mpl.rcParams.update({
     'font.family': 'normal',
@@ -103,7 +105,9 @@ BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
 from opti import *
 Optis = {
     'my': OptifedProtes,
-    # 'Our': OptiProtes,
+    'Noisy': OptiProtesNoisy,
+    'Noisy_protes': OptiProtesNoisyComp,
+    'Our': OptiProtes,
     # 'BS-1': OptiTTOpt,
     # 'BS-2': OptiOptimatt,
     # 'BS-3': OptiOPO,
@@ -134,7 +138,7 @@ def calc(m=int(1.E+4), seed=0):
     res = {}
 
     for bm in bms:
-        np.random.seed(seed)
+        # np.random.seed(seed)
         if bm.name in BM_FUNC:
             # We carry out a small random shift of the function's domain,
             # so that the optimum does not fall into the middle of the domain:
@@ -144,9 +148,9 @@ def calc(m=int(1.E+4), seed=0):
 
         log(bm.info())
         res[bm.name] = {}
-
+        a = np.random.randint(0, 1000)
         for opti_name, Opti in Optis.items():
-            np.random.seed(seed)
+            # np.random.seed(seed)
             opti = Opti(name=opti_name)
             opti.prep(bm.get, bm.d, bm.n, m, is_f_batch=True)
 
@@ -159,10 +163,18 @@ def calc(m=int(1.E+4), seed=0):
                 Pr = jnp.array(P[-1], copy=True)
                 P = [Pl, Pm, Pr]
                 opti.opts(P=P)
-            if opti_name == 'my':
-                pass
-            opti.optimize()
-
+            if opti_name == 'mw':
+                def optimize_function():
+                    opti.optimize()
+                    return opti.y
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    results = list(executor.map(optimize_function))
+                y_values = zip(*results)
+                opti.y = np.min(y_values)
+                print("opti.y",opti.y)
+            else:
+                opti.optimize()
+            
             log(opti.info())
             res[bm.name][opti.name] = [opti.m_list, opti.y_list, opti.y]
             _save(res)

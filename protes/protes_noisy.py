@@ -2,6 +2,9 @@ import jax
 import jax.numpy as jnp
 import optax
 from time import perf_counter as tpc
+import scipy
+from scipy.stats import bernoulli
+import numpy as np
 
 
 def protes_noise(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0,
@@ -17,7 +20,6 @@ def protes_noise(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0
             'P_list': [], 'I_list': [], 'y_list': []})
 
     rng = jax.random.PRNGKey(seed)
-    print("This is to test",rng)
 
     if P is None:
         rng, key = jax.random.split(rng)
@@ -62,11 +64,28 @@ def protes_noise(f, d, n, m=None, k=100, k_top=10, k_gd=1, lr=5.E-2, r=5, seed=0
             Zm = interface_matrices(Pm, Pr)
             rng, key = jax.random.split(rng)
             I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k))
-        y1=[]
-        for i in range(10):
-              y1.append(f(I))
+        
+        #parallel computations
+        import concurrent.futures
+        def compute_y1_element(I):
+            noise = bernoulli.rvs(size=1, p=0.3)
+            k_noise = np.random.normal(0, 1, 1)
+            # print("Noisy protes k_noise",k_noise)
+            if noise == 1:
+                return f(I) + k_noise
+            else:
+                return f(I)
+        
+        # Create a thread pool for parallel execution
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Map the compute_y1_element function to the range(10) in parallel
+            y1 = list(executor.map(compute_y1_element, [I] * 10))
+
+        # Convert the result to a JAX array and compute the mean
         y = jnp.array(y1)
-        y=jnp.mean(y,axis=0)
+        y = jnp.mean(y, axis=0)
+
+    
         if y is None:
             break
         if len(y) == 0:

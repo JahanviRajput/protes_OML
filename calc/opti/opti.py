@@ -3,10 +3,11 @@ from time import perf_counter as tpc
 
 
 class Opti:
-    def __init__(self, name='opti', with_arg_list=False, log=False):
+    def __init__(self, name='opti', with_arg_list=False, log=False, k = 100):
         self.name = name
         self.with_arg_list = with_arg_list
         self.log = log
+        self.k = k
 
         self.err = ''
         self.is_prep = False
@@ -24,7 +25,7 @@ class Opti:
         self.y_list = []
         self.e_list = []
 
-        self.opts()
+        self.opts(self.k)
 
     def check(self, I, y):
         ind_opt = np.argmax(y) if self.is_max else np.argmin(y)

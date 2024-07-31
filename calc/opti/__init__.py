@@ -8,6 +8,8 @@ from .opti_protes import OptiProtes
 from .opti_spsa import OptiSPSA
 from .opti_ttopt import OptiTTOpt
 from .opti_fed import OptifedProtes
+from .opti_noisy import OptiProtesNoisy
+from .opti_protes_noisy import OptiProtesNoisyComp
 
 
 def opti_get():
@@ -21,4 +23,6 @@ def opti_get():
     optis.append(OptiPSO)
     optis.append(OptiSPSA)
     optis.append(OptiTTOpt)
+    optis.append(OptiProtesNoisy)
+    opti.append(OptiProtesNoisyComp)
     return optis
