@@ -1,76 +1,24 @@
-------------------------------------------------------------------------------
-BM: P-11                                 | DIMS =    50 | <MODE SIZE> =    2.0
-
-  [ Quadratic unconstrained binary optimization (QUBO) Max-Cut problem
-    represented as a discrete function.
-    The dimension may be any (default is 50), and the mode size should be 2.
-    The benchmark needs "networkx==3.0" and "qubogen==0.1.1" libraries. ]
-==============================================================================
-
-my           > m 1.0e+05 | t 3.848e+01 | y -3.55000e+02 <<< DONE
-Noisy        > m 1.0e+05 | t 1.077e+01 | y -3.56000e+02 <<< DONE
-Noisy_protes > m 1.0e+04 | t 6.794e+00 | y -3.56000e+02 <<< DONE
-Our          > m 1.0e+04 | t 5.662e+00 | y -3.57000e+02 <<< DONE
+P-11  Noisy        > m 1.0e+05 | t 6.916e+00 | y -3.56000e+02 <<< DONE
 
 
 
-------------------------------------------------------------------------------
-BM: P-12                                 | DIMS =    50 | <MODE SIZE> =    2.0
-
-  [ Quadratic unconstrained binary optimization (QUBO) Minimum Vertex Cover
-    (MVC) problem represented as a discrete function.
-    The dimension may be any (default is 50), and the mode size should be 2.
-    The benchmark needs "networkx==3.0" and "qubogen==0.1.1" libraries. ]
-==============================================================================
-
-my           > m 1.0e+05 | t 3.718e+01 | y -5.92700e+03 <<< DONE
-Noisy        > m 1.0e+05 | t 9.573e+00 | y -5.92700e+03 <<< DONE
-Noisy_protes > m 1.0e+04 | t 5.543e+00 | y -5.92600e+03 <<< DONE
-Our          > m 1.0e+04 | t 5.690e+00 | y -5.92600e+03 <<< DONE
+P-12  Noisy        > m 1.0e+05 | t 5.935e+00 | y -5.92700e+03 <<< DONE
 
 
 
-------------------------------------------------------------------------------
-BM: P-13                                 | DIMS =    50 | <MODE SIZE> =    2.0
-
-  [ Quadratic unconstrained binary optimization (QUBO) knapsack problem
-    represented as a discrete function.
-    The dimension may be any (default is 50), and the mode size should be 2.
-    The benchmark needs "qubogen==0.1.1" library. ]
-==============================================================================
-
-my           > m 1.0e+05 | t 3.784e+01 | y -5.16498e+00 <<< DONE
-Noisy        > m 1.0e+05 | t 1.029e+01 | y -5.16498e+00 <<< DONE
-Noisy_protes > m 1.0e+04 | t 5.472e+00 | y -5.16498e+00 <<< DONE
-Our          > m 1.0e+04 | t 5.907e+00 | y -5.16498e+00 <<< DONE
+P-13  Noisy        > m 1.0e+05 | t 1.072e+01 | y -3.08384e+00 <<< DONE
 
 
 
-------------------------------------------------------------------------------
-BM: P-14                                 | DIMS =    50 | <MODE SIZE> =    2.0
-                                   y_min = -3.10300e+03 | 
-
-  [ Binary knapsack problem with fixed weights wi in [5, 20], profits pi in
-    [50, 100] (i = 1, 2, . . . , d) and the maximum capacity C = 1000. It is
-    from work (Dong et al., 2021) (problem k3; d = 50), where anglemodulated
-    bat algorithm (AMBA) algorithm was proposed for high-dimensional binary
-    optimization problems with application to antenna topology optimization.
-    The dimension should be 50, and the mode size should be 2. ]
-==============================================================================
-
-my           > m 1.0e+05 | t 3.849e+01 | y -3.09500e+03 <<< DONE
-Noisy        > m 1.0e+05 | t 1.296e+01 | y -3.08000e+03 <<< DONE
-Noisy_protes > m 1.0e+04 | t 6.398e+00 | y -3.08900e+03 <<< DONE
-Our          > m 1.0e+04 | t 5.667e+00 | y -3.09100e+03 <<< DONE
+P-14  Noisy        > m 1.0e+05 | t 1.655e+01 | y -3.08000e+03 <<< DONE
 
 
 
-------------------------------------------------------------------------------
-BM: P-15                                 | DIMS =    25 | <MODE SIZE> =    2.0
+P-15  Noisy        > m 1.0e+05 | t 4.647e+03 | y 6.86843e-03 <<< DONE
 
-  [ Discrete optimal control (OC) problem with simple 1D ODE "x**3 - i", where
-    "i" is a binary control variable.
-    The dimension may be any (default is 50), and the mode size should be 2.
-    The benchmark needs "gekko==1.0.6" library (it is used for ODE solution). ]
-==============================================================================
+
+
+P-16  Noisy        > m 1.0e+05 | t 4.916e+03 | y 1.41876e-02 <<< DONE
+
+
 

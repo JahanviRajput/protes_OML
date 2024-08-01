@@ -1,0 +1,80 @@
+P-01:  Noisy_protes > m 1.0e+04 | t 4.776e+00 | y 1.17108e+01 <<< DONE
+
+
+
+P-02:  Noisy_protes > m 1.0e+04 | t 3.141e+00 | y 2.74199e+00 <<< DONE
+
+
+
+P-03:  Noisy_protes > m 1.0e+04 | t 3.260e+00 | y -9.63660e-01 <<< DONE
+
+
+
+P-04:  Noisy_protes > m 1.0e+04 | t 3.110e+00 | y 1.17180e+00 <<< DONE
+
+
+
+P-05:  Noisy_protes > m 1.0e+04 | t 3.193e+00 | y -4.40217e+00 <<< DONE
+
+
+
+P-06:  Noisy_protes > m 1.0e+04 | t 3.181e+00 | y 1.85793e-01 <<< DONE
+
+
+
+P-07:  Noisy_protes > m 1.0e+04 | t 3.225e+00 | y 7.84385e+05 <<< DONE
+
+
+
+P-08:  Noisy_protes > m 1.0e+04 | t 3.119e+00 | y 7.09659e+01 <<< DONE
+
+
+
+P-09:  Noisy_protes > m 1.0e+04 | t 3.194e+00 | y 2.02827e+00 <<< DONE
+
+
+
+P-10:  Noisy_protes > m 1.0e+04 | t 3.225e+00 | y 1.47200e+02 <<< DONE
+
+
+
+P-11:  Noisy_protes > m 1.0e+04 | t 1.131e+01 | y -3.56000e+02 <<< DONE
+
+
+
+P-12:  Noisy_protes > m 1.0e+04 | t 8.041e+00 | y -5.92600e+03 <<< DONE
+
+
+
+P-13:  Noisy_protes > m 1.0e+04 | t 6.753e+00 | y -3.43917e+00 <<< DONE
+
+
+
+P-14:  Noisy_protes > m 1.0e+04 | t 3.255e+00 | y -3.08900e+03 <<< DONE
+
+
+
+P-15:  Noisy_protes > m 1.0e+04 | t 1.114e+03 | y 6.61148e-03 <<< DONE
+
+
+
+P-16:  Noisy_protes > m 1.0e+04 | t 1.290e+03 | y 1.44646e-02 <<< DONE
+
+
+
+P-17:  Noisy_protes > m 1.0e+04 | t 1.543e+03 | y 3.00319e-02 <<< DONE
+
+
+
+P-18:  Noisy_protes > m 1.0e+04 | t 4.679e+02 | y 2.10932e-02 <<< DONE
+
+
+
+P-19:  Noisy_protes > m 1.0e+04 | t 3.655e+00 | y 1.00000e+42 <<< DONE
+
+
+
+P-20:  Noisy_protes > m 1.0e+04 | t 5.651e+00 | y 1.00000e+42 <<< DONE
+
+
+

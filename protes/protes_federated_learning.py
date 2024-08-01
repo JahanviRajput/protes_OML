@@ -86,17 +86,46 @@ def protes_fed_learning(f, d, n, m=None,k=100, nbb = 10, k_gd=1, lr=5.E-2, r=5, 
         else:
             Pl, Pm, Pr = P
             Zm = interface_matrices(Pm, Pr)
-            parts = []
-            for i in range(len(rang)):
-                rang[i], key = jax.random.split(rang[i])
-                t=tpc()
+            def sample_function(rang, Pl, Pm, Pr, Zm, k, nbb, idx):
+                rang[idx], key = jax.random.split(rang[idx])
                 I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k//nbb))
-                # print('tpc()-t',tpc()-t)
-                ##TO CHECK HOW LONG SAMPLING TAKES##
-                parts.append(I) 
+                return I
+            
+            rang = [jax.random.PRNGKey(i) for i in range(10)]  # Example initialization of `rang`
+            parts = []
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [executor.submit(sample_function, rang, Pl, Pm, Pr, Zm, k, nbb, i) for i in range(len(rang))]
+                for future in concurrent.futures.as_completed(futures):
+                    parts.append(future.result())
 
-        y_parts = jnp.array([f(i) for i in parts])
+            # parts = []
+            # for i in range(len(rang)):
+            #     rang[i], key = jax.random.split(rang[i])
+            #     I = sample(Pl, Pm, Pr, Zm, jax.random.split(key, k//nbb))
+            #     ##TO CHECK HOW LONG SAMPLING TAKES##
+            #     parts.append(I) 
+
+        # y_parts = jnp.array([f(i) for i in parts])
         # Compute the minimum values and their indices within each part
+        # y = jnp.min(y_parts, axis=1)
+        # # Get corresponding parts 
+        # x = jax.vmap(lambda part, idx: part[idx])(jnp.array(parts), jnp.argmin(y_parts, axis=1))
+
+
+        # hope this reduce time as right now cpu is full
+                    
+        def process_part(part):
+            return f(part)
+
+        # Initialize `rang` with random keys
+        rang = [jax.random.PRNGKey(i) for i in range(10)]  # Example initialization of `rang`
+
+
+        # Process parts in parallel to create `y_parts`
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(process_part, part) for part in parts]
+            y_parts = jnp.array([future.result() for future in concurrent.futures.as_completed(futures)])
+
         y = jnp.min(y_parts, axis=1)
         # Get corresponding parts 
         x = jax.vmap(lambda part, idx: part[idx])(jnp.array(parts), jnp.argmin(y_parts, axis=1))
@@ -104,7 +133,7 @@ def protes_fed_learning(f, d, n, m=None,k=100, nbb = 10, k_gd=1, lr=5.E-2, r=5, 
 
         info['m'] += y.shape[0]
 
-        is_new = _process(P, I, y, info, with_info_i_opt_list, with_info_full)
+        is_new = _process(P, x, y, info, with_info_i_opt_list, with_info_full)
 
         if info['m_max'] and info['m'] >= info['m_max']:
             break
@@ -243,129 +272,170 @@ def _sample(Yl, Ym, Yr, Zm, key):
     ir = jnp.array(ir, dtype=jnp.int32)
     return jnp.hstack((il, im, ir))
 
-# def protes_fed_learning_fun(f, d, n, m=None,k=100, nbb = 10, k_gd=1, lr=5.E-2, r=5, seed=0,
-#            is_max=False, log=False, info={}, P=None, with_info_p=False,
-#            with_info_i_opt_list=False, with_info_full=False, sample_ext=None):
+import matplotlib as mpl
+import numpy as np
+import os
+import pickle
+import sys
+from time import perf_counter as tpc
 
-#     y_value = []
-#     t_value = []
-#     m_value = []
-#     x_value = []
-#     a = 10
-#     def optimize_function(f, d, n, m, k, nbb, k_gd, lr, r, seed_idx, is_max, log, info, P, with_info_p, with_info_i_opt_list, with_info_full, sample_ext):
-#         np.random.seed(seed[seed_idx])
-#         t_start = time.time()
-#         i_opt, y_optk = protes_federated_learning_fun(f, d, n, m,k, nbb, k_gd, lr, r, is_max, log, info, P, with_info_p, with_info_i_opt_list, with_info_full, sample_ext, seed=seed[seed_idx])
-#             # f, d, n, m, log=True, k=100, seed=seed[seed_idx])
-#         time_taken = (time.time() - t_start)/10
-#         return y_optk, time_taken, i_opt
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
-#     with concurrent.futures.ThreadPoolExecutor() as executor:
-#         results = list(executor.map(optimize_function, [f]*a, [d]*a, [n]*a, [m]*a, [k]*a, [nbb]*a, [k_gd]*a, [lr]*a, [r]*a, [is_max]*a, [log]*a, [info]*a, [P]*a, [with_info_p]*a, [with_info_i_opt_list]*a, [with_info_full]*a, [sample_ext]*a, range(a)))
+mpl.rcParams.update({
+    'font.family': 'normal',
+    'font.serif': [],
+    'font.sans-serif': [],
+    'font.monospace': [],
+    'font.size': 12,
+    'text.usetex': False,
+})
+
+
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+import seaborn as sns
+
+
+sns.set_context('paper', font_scale=2.5)
+sns.set_style('white')
+sns.mpl.rcParams['legend.frameon'] = 'False'
+
+
+from jax.config import config
+config.update('jax_enable_x64', True)
+os.environ['JAX_PLATFORM_NAME'] = 'cpu'
+
+
+import jax.numpy as jnp
+
+
+
+from teneva_bm import *
+
+bms = [
+    BmFuncAckley(d=7, n=16, name='P-01'),
+    # BmFuncAlpine(d=7, n=16, name='P-02'),
+    # BmFuncExp(d=7, n=16, name='P-03'),
+    # BmFuncGriewank(d=7, n=16, name='P-04'),
+    # BmFuncMichalewicz(d=7, n=16, name='P-05'),
+    # BmFuncPiston(d=7, n=16, name='P-06'),
+    # BmFuncQing(d=7, n=16, name='P-07'),
+    # BmFuncRastrigin(d=7, n=16, name='P-08'),
+    # BmFuncSchaffer(d=7, n=16, name='P-09'),
+    # BmFuncSchwefel(d=7, n=16, name='P-10'), 
+
+    ## new analytic functions
+    ### need upgarded version
+
+    # BmFuncChung(d = 7, n = 16, name ='P-21'),
+
+    # BmFuncDixon(d = 7, n = 16, name ='P-22'), 
+
+    # BmFuncPathological(d = 7, n = 16, name ='P-23'),
+    # BmFuncPinter(d = 7, n = 16, name ='P-24'), 
+    # BmFuncPowell(d = 7, n = 16, name ='P-25'), 
+
+    # BmFuncQing(d = 7, n = 16, name ='P-26'),
+    # BmFuncRosenbrock(d = 7, n = 16, name ='P-27'),
+
+    # BmFuncSalomon(d = 7, n = 16, name ='P-28'), 
+    # BmFuncSphere(d = 7, n = 16, name ='P-29'), 
+    # BmFuncSquares(d = 7, n = 16, name ='P-30'),
+    # BmFuncTrid(d = 7, n = 16, name ='P-31'), 
+    # BmFuncTrigonometric(d = 7, n = 16, name ='P-32'), 
+    # BmFuncWavy(d = 7, n = 16, name ='P-33'), 
+    # BmFuncYang(d = 7, n = 16, name ='P-34'),
+
+    
+    
+    # BmQuboMaxcut(d=50, name='P-11'),
+    # BmQuboMvc(d=50, name='P-12'),
+    # BmQuboKnapQuad(d=50, name='P-13'),
+    # BmQuboKnapAmba(d=50, name='P-14'),
+
+    # BmOcSimple(d=25, name='P-15'),
+    # BmOcSimple(d=50, name='P-16'),
+    # BmOcSimple(d=100, name='P-17'),
+
+    # BmOcSimpleConstr(d=25, name='P-18'),
+    # BmOcSimpleConstr(d=50, name='P-19'),
+    # BmOcSimpleConstr(d=100, name='P-20'),
+]
+
+
+# BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
+#                 'P-08', 'P-09', 'P-10', 'P-21', 'P-22','P-23', 'P-24', 
+#                 'P-25', 'P-26', 'P-27', 'P-28', 'P-29', 'P-30', 
+#                 'P-31', 'P-32', 'P-33', 'P-34']
+BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-05', 'P-06', 'P-07',
+                'P-08', 'P-09', 'P-10']
+# BM_FUNC      = ['P-04']
+
+def prep_bm_func(bm):
+    shift = np.random.randn(bm.d) / 10
+    a_new = bm.a - (bm.b-bm.a) * shift
+    b_new = bm.b + (bm.b-bm.a) * shift
+    bm.set_grid(a_new, b_new)
+    bm.prep()
+    return bm
+
+class Log:
+    def __init__(self, fpath='../Results/log_fed_fast.txt'):
+        self.fpath = fpath
+        self.is_new = True
+
+        if os.path.dirname(self.fpath):
+            os.makedirs(os.path.dirname(self.fpath), exist_ok=True)
+
+    def __call__(self, text):
+        print(text)
+        with open(self.fpath, 'w' if self.is_new else 'a') as f:
+            f.write(text + '\n')
+        self.is_new = False
+
+import random
+import time
+import pandas as pd
+
+def calc(m=int(1.E+4), seed=0):
+    log = Log()
+    i_opt = np.zeros(len(BM_FUNC))
+    y_opt = np.zeros(len(BM_FUNC))
+
+    d = 7              # Dimension
+    n = 11             # Mode size
+    m = int(10000)     # Number of requests to the objective function
+    seed = [random.randint(0, 100) for _ in range(len(BM_FUNC))]
+    # y_value = []
+    # t_value = []
+    # x_value = []
+
+    for f in bms:
+        if f.name in BM_FUNC:
+            # We carry out a small random shift of the function's domain,
+            # so that the optimum does not fall into the middle of the domain:
+            f = prep_bm_func(f)
+        else:
+            f.prep()
+        t_start = time.time()
+        i_opt, y_optk = protes_fed_learning(f, d, n, m, log=True, k=100, nbb= 10)
+        time_taken = (time.time() - t_start)
+        print(f'\n {f.name} Function: {f} \n | y opt = {y_optk:-11.4e} | time = {time_taken:-10.4f}\n\n')
+        log(f'\n {f.name}:  y opt = {y_optk:-11.4e} | time = {time_taken:-10.4f} | x opt = {i_opt}')
+    
+        # y_value.append(y_optk)
+        # t_value.append(time_taken)
+        # x_value.append(i_opt)
         
-#         # results = list(executor.map(optimize_function, [f]*1, range(1)))
-
-#         i_opts, y_opts, time, m_values = zip(*results)
-#         y_value.append(np.min(y_opts))
-#         ind = np.argmin(y_opts)
-#         t_value.append(time[ind])
-#         m_value.append(m_values[ind])
-#         x_value.append(i_opts[ind])
-
-        
-
-# def _prep_bm_func(bm):
-#     shift = np.random.randn(bm.d) / 10
-#     a_new = bm.a - (bm.b-bm.a) * shift
-#     b_new = bm.b + (bm.b-bm.a) * shift
-#     bm.set_grid(a_new, b_new)
-#     bm.prep()
-#     return bm
-
-# # Assuming the function definitions are provided
-# def demofed_yt_values():
-#     i_opt = np.zeros(10)
-#     y_opt = np.zeros(10)
-
-#     d = 5              # Dimension
-#     n = 11             # Mode size
-#     m = int(10000)     # Number of requests to the objective function
-#     seed = [random.randint(0, 100) for _ in range(10)]
-
-#     functions = [
-#     # BmFuncAckley(d=d, n=n, name='P-01'),  
-#     # BmFuncAlpine(d=d, n=n, name='P-02'),
-#     # BmFuncExp(d=d, n=n, name='P-03'),
-#     # BmFuncGriewank(d=d, n=n, name='P-04'),
-#     # BmFuncMichalewicz(d=d, n=n, name='P-05'),
-#     # BmFuncPiston(d=d, n=n, name='P-06'),
-#     # BmFuncQing(d=d, n=n, name='P-07'),
-#     # BmFuncRastrigin(d=d, n=n, name='P-08'),
-#     # BmFuncSchaffer(d=d, n=n, name='P-09'),
-#     # BmFuncSchwefel(d=d, n=n, name='P-10'),
-        
-#     # BmQuboMaxcut(d=50, name='P-11'), # ValueError: BM "P-11" is a tensor. Can`t compute it in the point #find out the function call of protes for these
-#     # BmQuboMvc(d=50, name='P-12'),
-#     # BmQuboKnapQuad(d=50, name='P-13'),
-#     # BmQuboKnapAmba(d=50, name='P-14'),
-#     # BmOcSimple(d=25, name='P-15'),
-#     # BmOcSimple(d=50, name='P-16'),
-#     # BmOcSimple(d=100, name='P-17'),
-
-#     # BmOcSimpleConstr(d=25, name='P-18'),
-#     # BmOcSimpleConstr(d=50, name='P-19'),
-#     # BmOcSimpleConstr(d=100, name='P-20')
-#     ]
-
-#     # BmFuncPiston(d=d, n=n, name='P-06'), installed but broadcast error
-
-#     BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
-#                 'P-08', 'P-09', 'P-10']
-#     BM_QUBO      = ['P-11', 'P-12', 'P-13', 'P-14']
-#     BM_OC        = ['P-15', 'P-16', 'P-17']
-#     BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
-#     # functions = [func_buildfed(d, n), func_build_alp(d, n), func_build_griewank(d, n),
-#     #              func_build_michalewicz(d, n), func_build_Rastrigin(d, n), func_build_Schaffer(d,n), func_build_Schwefel(d, n)]
-
-#     y_value = []
-#     t_value = []
-
-#     def optimize_function(f, seed_idx):
-#         np.random.seed(seed[seed_idx])
-#         t_start = time.time()
-#         i_opt, y_optk = protes_federated_learning(f, d, n, m, log=True, k=100, seed=seed[seed_idx])
-#         time_taken = (time.time() - t_start)/10
-#         return y_optk, time_taken
-
-#     for f in functions:
-#         if f.name in BM_FUNC:
-#             # We carry out a small random shift of the function's domain,
-#             # so that the optimum does not fall into the middle of the domain:
-#             f = _prep_bm_func(f)
-#         else:
-#             f.prep()
-#         with concurrent.futures.ThreadPoolExecutor() as executor:
-#             results = list(executor.map(optimize_function, [f]*1, range(1)))
-
-#         y_opts, times = zip(*results)
-#         min_y_opt = np.min(y_opts)
-#         min_y_opt_index = np.argmin(y_opts)
-#         corresponding_time = times[min_y_opt_index]
-
-#         y_value.append(min_y_opt)
-#         t_value.append(corresponding_time)
-
-#         for i, (y_optk, time_taken) in enumerate(results):
-#             print(f'\n Function: {f} \n \nRESULT | y opt = {y_optk:-11.4e} | time = {time_taken:-10.4f}\n\n')
-
-#         print(y_value,"\n",t_value)
-#     return y_value, t_value
+    # return y_value, t_value, x_value
 
 # #dataframe for y and t values
-# def dataframe_output(y_value, t_value):
+# def dataframe_output(y_value, t_value, x_value):
 #     # Create a dictionary with the column names
-#     columns = {'col': ['y', 't']}
-#     columns.update({f'P{i:02d}': [0, 0] for i in range(1, 11)})
+#     columns = {'col': ['y', 't', 'x']}
+#     columns.update({f'P{i:02d}': [0, 0, 0] for i in range(1, len(BM_FUNC))})
 #     # Create the DataFrame
 #     df = pd.DataFrame(columns)
 #     # Drop specified columns
@@ -374,120 +444,19 @@ def _sample(Yl, Ym, Yr, Zm, key):
 #     # Assign the values to the DataFrame rows, ensuring lengths match the number of columns
 #     df.iloc[0, 1:] = y_value
 #     df.iloc[1, 1:] = t_value
+#     df.iloc[2, 1:] = x_value
 #     df = df.set_index('col').T
 #     df.index.name = 'Functions'
 #     return df
 
 # # Execute the demofed_yt_fun function
 
-# y_value, t_value = demofed_yt_values()
-# df = dataframe_output(y_value, t_value)
+calc()
+
+# print(y_value, t_value, x_value)
+# df = dataframe_output(y_value, t_value, x_value)
+# print(df)
+
 # file_path = os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading.csv")
 # df.to_csv(file_path)
-
-
-
-# # Assuming the function definitions are provided
-# def demofed_ym_values():
-#     i_opt = np.zeros(10)
-#     y_opt = np.zeros(10)
-
-#     d = 5              # Dimension
-#     n = 11             # Mode size
-#     m = int(10000)     # Number of requests to the objective function
-#     seed = [random.randint(0, 100) for _ in range(10)]
-
-#     functions = [BmFuncAckley(d=d, n=n, name='P-01'),  BmFuncAlpine(d=d, n=n, name='P-02'),
-#     BmFuncExp(d=d, n=n, name='P-03'),
-#     BmFuncGriewank(d=d, n=n, name='P-04'),
-#     BmFuncMichalewicz(d=d, n=n, name='P-05'),
-#     BmFuncQing(d=d, n=n, name='P-07'),
-#     BmFuncRastrigin(d=d, n=n, name='P-08'),
-#     BmFuncSchaffer(d=d, n=n, name='P-09'),
-#     BmFuncSchwefel(d=d, n=n, name='P-10'),
-#     # BmQuboMaxcut(d=50, name='P-11'),
-#     # BmQuboMvc(d=50, name='P-12'),
-#     # BmQuboKnapQuad(d=50, name='P-13'),
-#     # BmQuboKnapAmba(d=50, name='P-14'),
-
-#     # BmOcSimple(d=25, name='P-15'),
-#     # BmOcSimple(d=50, name='P-16'),
-#     # BmOcSimple(d=100, name='P-17'),
-
-#     # BmOcSimpleConstr(d=25, name='P-18'),
-#     # BmOcSimpleConstr(d=50, name='P-19'),
-#     # BmOcSimpleConstr(d=100, name='P-20')
-#     ]
-
-#     # BmFuncPiston(d=d, n=n, name='P-06'), not there
-
-#     BM_FUNC      = ['P-01', 'P-02', 'P-03', 'P-04', 'P-05', 'P-06', 'P-07',
-#                 'P-08', 'P-09', 'P-10']
-#     BM_QUBO      = ['P-11', 'P-12', 'P-13', 'P-14']
-#     BM_OC        = ['P-15', 'P-16', 'P-17']
-#     BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
-#     # functions = [func_buildfed(d, n), func_build_alp(d, n), func_build_griewank(d, n),
-#     #              func_build_michalewicz(d, n), func_build_Rastrigin(d, n), func_build_Schaffer(d,n), func_build_Schwefel(d, n)]
-
-#     y_value = []
-#     t_value = []
-
-#     def optimize_function(f, seed_idx):
-#         np.random.seed(seed[seed_idx])
-#         t_start = time.time()
-#         i_opt, y_optk = protes_federated_learning(f, d, n, m, log=True, k=100, seed=seed[seed_idx])
-#         time_taken = (time.time() - t_start)/10
-#         return y_optk, time_taken
-#     v = 0
-#     for m in range(100,10000,500):
-#         y_value = [m]
-#         t_value = [m]
-#         for f in functions:
-#             if m == 100:
-#                 if f.name in BM_FUNC:
-#                     # We carry out a small random shift of the function's domain,
-#                     # so that the optimum does not fall into the middle of the domain:
-#                     f = _prep_bm_func(f)
-#                 else:
-#                     f.prep()
-#             with ThreadPoolExecutor(max_workers=10) as executor:
-#                 results = list(executor.map(optimize_function, [f]*10, range(10)))
-
-#             y_opts, times = zip(*results)
-#             min_y_opt = np.min(y_opts)
-#             min_y_opt_index = np.argmin(y_opts)
-#             corresponding_time = times[min_y_opt_index]
-
-#             y_value.append(min_y_opt)
-#             t_value.append(corresponding_time)
-
-#             for i, (y_optk, time_taken) in enumerate(results):
-#                 print(f'\n Function: {f} \n \nRESULT | y opt = {y_optk:-11.4e} | time = {time_taken:-10.4f}\n\n')
-
-#             print(y_value,"\n",t_value)
-#         df1.iloc[v] = y_value
-#         df2.iloc[v] = t_value
-#         v +=1
-
-
-# #dataframe for m and y values
-# def dataframe_creation():
-#     # Create a dictionary with the column names
-#     columns = {'m': [i for i in range(100,10000,500)]}
-#     columns.update({f'P{i:02d}': [0 for i in range(100,10000,500)] for i in range(1,11)})
-#     # Create the DataFrame
-#     df1 = pd.DataFrame(columns)
-#     df1.drop(columns=['P06'], inplace=True)
-#     return df1
-
-# # df1 = dataframe_creation()
-# # df2 = dataframe_creation()
-# # demofed_ym_values()
-# # df1 = df1.set_index('m').T
-# # df1.index.name = 'Functions'
-# # df1.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_y.csv"))
-# # df2 = df2.set_index('m').T
-# # df2.index.name = 'Functions'
-# # df2.to_csv(os.path.join("/raid/ganesh/namitha/Jahanvi/PROTES/protes_OML/Results","fed_protes_multi_threading_m_data_t.csv"))
-
-
+        

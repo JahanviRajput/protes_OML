@@ -25,7 +25,7 @@ class Opti:
         self.y_list = []
         self.e_list = []
 
-        self.opts(self.k)
+        self.opts()
 
     def check(self, I, y):
         ind_opt = np.argmax(y) if self.is_max else np.argmin(y)

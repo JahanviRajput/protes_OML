@@ -43,16 +43,16 @@ from constr import ind_tens_max_ones
 from teneva_bm import *
 
 bms = [
-    # BmFuncAckley(d=7, n=16, name='P-01'),
-    # BmFuncAlpine(d=7, n=16, name='P-02'),
-    # BmFuncExp(d=7, n=16, name='P-03'),
-    # BmFuncGriewank(d=7, n=16, name='P-04'),
-    # BmFuncMichalewicz(d=7, n=16, name='P-05'),
-    # BmFuncPiston(d=7, n=16, name='P-06'),
-    # BmFuncQing(d=7, n=16, name='P-07'),
-    # BmFuncRastrigin(d=7, n=16, name='P-08'),
-    # BmFuncSchaffer(d=7, n=16, name='P-09'),
-    # BmFuncSchwefel(d=7, n=16, name='P-10'), 
+    BmFuncAckley(d=7, n=16, name='P-01'),
+    BmFuncAlpine(d=7, n=16, name='P-02'),
+    BmFuncExp(d=7, n=16, name='P-03'),
+    BmFuncGriewank(d=7, n=16, name='P-04'),
+    BmFuncMichalewicz(d=7, n=16, name='P-05'),
+    BmFuncPiston(d=7, n=16, name='P-06'),
+    BmFuncQing(d=7, n=16, name='P-07'),
+    BmFuncRastrigin(d=7, n=16, name='P-08'),
+    BmFuncSchaffer(d=7, n=16, name='P-09'),
+    BmFuncSchwefel(d=7, n=16, name='P-10'), 
 
     ### new analytic functions
     #### need upgarded version
@@ -104,22 +104,22 @@ BM_OC_CONSTR = ['P-18', 'P-19', 'P-20']
 
 from opti import *
 Optis = {
-    'my': OptifedProtes,
-    'Noisy': OptiProtesNoisy,
-    'Noisy_protes': OptiProtesNoisyComp,
+    # 'my': OptifedProtes,
+    # 'Noisy': OptiProtesNoisy,
+    # 'Noisy_protes': OptiProtesNoisyComp,
     'Our': OptiProtes,
-    # 'BS-1': OptiTTOpt,
-    # 'BS-2': OptiOptimatt,
-    # 'BS-3': OptiOPO,
-    # 'BS-4': OptiPSO,
-    # 'BS-5': OptiNB,
-    # 'BS-6': OptiSPSA,
-    # 'BS-7': OptiPortfolio,
+    'BS-1': OptiTTOpt,
+    'BS-2': OptiOptimatt,
+    'BS-3': OptiOPO,
+    'BS-4': OptiPSO,
+    'BS-5': OptiNB,
+    'BS-6': OptiSPSA,
+    'BS-7': OptiPortfolio,
 }
 
 
 class Log:
-    def __init__(self, fpath='log.txt'):
+    def __init__(self, fpath='../Results/log_protes_baselines.txt'):
         self.fpath = fpath
         self.is_new = True
 
@@ -146,7 +146,7 @@ def calc(m=int(1.E+4), seed=0):
         else:
             bm.prep()
 
-        log(bm.info())
+        # log(bm.info())
         res[bm.name] = {}
         a = np.random.randint(0, 1000)
         for opti_name, Opti in Optis.items():
@@ -174,8 +174,7 @@ def calc(m=int(1.E+4), seed=0):
                 print("opti.y",opti.y)
             else:
                 opti.optimize()
-            
-            log(opti.info())
+            log(f'{bm.name}:  {opti.info()}')
             res[bm.name][opti.name] = [opti.m_list, opti.y_list, opti.y]
             _save(res)
 
